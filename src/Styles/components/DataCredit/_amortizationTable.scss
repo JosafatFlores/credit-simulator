@@ -1,0 +1,17 @@
+.amortization__table{
+    display: flex;
+    margin: auto;
+    width: 100%;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    .amortization__table{
+        width: 90%;
+    }
+}
+
+@media (min-width: 1024px) {
+    .amortization__table{
+        width: 75%;
+    }
+}

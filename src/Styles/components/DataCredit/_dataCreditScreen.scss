@@ -1,0 +1,8 @@
+@import './creditInformation';
+@import './amortizationTable';
+@import './fixedCharges';
+
+.credit__information{
+    display: flex;
+    margin: auto;
+}

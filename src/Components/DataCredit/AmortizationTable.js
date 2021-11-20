@@ -6,20 +6,26 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableFooter from '@mui/material/TableFooter';
-import Paper from '@mui/material/Paper';
+import { currencyFormatter } from '../../Helpers/currencyFormatter';
 
-export const AmortizationTable = ({ amortizationData, totalPay, totalInterest }) => {
-
+export const AmortizationTable = ({ amortizationData, totalPay, totalInterest, fixedCharges }) => {
+    console.log(fixedCharges)
     return (
-        <div className="w-75 m-auto mt-3">
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <div className="amortization__table">
+            <TableContainer sx={{ maxHeight: 440 }}>
+                <Table stickyHeader >
                     <TableHead>
                         <TableRow>
                             <TableCell>No. Pago</TableCell>
                             <TableCell align="center">Saldo capital</TableCell>
-                            <TableCell align="center">Monto pago</TableCell>
+                            <TableCell align="center">Pago</TableCell>
+                            <TableCell align="center">Pago capital </TableCell>
                             <TableCell align="center">Pago interes</TableCell>
+                            {
+                                fixedCharges.map(fixedCharge => (
+                                    <TableCell align="center">{fixedCharge.name}</TableCell>
+                                ))
+                            }
                             <TableCell align="center">Saldo capital final</TableCell>
                         </TableRow>
                     </TableHead>
@@ -30,10 +36,16 @@ export const AmortizationTable = ({ amortizationData, totalPay, totalInterest })
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 <TableCell>{row.noPay}</TableCell>
-                                <TableCell align="center">{currencyFormater(row.capitalBalance)}</TableCell>
-                                <TableCell align="center">{currencyFormater(row.amountPay)}</TableCell>
-                                <TableCell align="center">{currencyFormater(row.interestPay)}</TableCell>
-                                <TableCell align="center">{currencyFormater(row.capitalBalanceFinal)}</TableCell>
+                                <TableCell align="center">{currencyFormatter(row.capitalBalance)}</TableCell>
+                                <TableCell align="center">{currencyFormatter(row.amountPay)}</TableCell>
+                                <TableCell align="center">{currencyFormatter(row.amountCapitalPay)}</TableCell>
+                                <TableCell align="center">{currencyFormatter(row.interestPay)}</TableCell>
+                                {
+                                    fixedCharges.map(fixedCharge => (
+                                        <TableCell align="center">{currencyFormatter(fixedCharge.amount)}</TableCell>
+                                    ))
+                                }
+                                <TableCell align="center">{currencyFormatter(row.capitalBalanceFinal)}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -44,11 +56,18 @@ export const AmortizationTable = ({ amortizationData, totalPay, totalInterest })
                                 <TableCell>Total</TableCell>
                                 <TableCell align="center"></TableCell>
                                 <TableCell align="center">
-                                    {currencyFormater(totalPay)}
+                                    {currencyFormatter(totalPay)}
                                 </TableCell>
+                                <TableCell align="center"></TableCell>
                                 <TableCell align="center">
-                                    {currencyFormater(totalInterest)}
+                                    {currencyFormatter(totalInterest)}
                                 </TableCell>
+                                {
+                                    fixedCharges.map(fixedCharge => (
+                                        <TableCell align="center"></TableCell>
+                                    ))
+                                }
+                                
                                 <TableCell align="center"></TableCell>
                             </>
                         }
@@ -57,8 +76,4 @@ export const AmortizationTable = ({ amortizationData, totalPay, totalInterest })
             </TableContainer>
         </div>
     )
-}
-
-const currencyFormater = (num) => {
-    return '$' + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
 }

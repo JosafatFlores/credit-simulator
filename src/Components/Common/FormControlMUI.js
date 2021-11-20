@@ -1,11 +1,11 @@
 import React from 'react'
 import { FilledInput, FormControl, InputAdornment, InputLabel } from '@mui/material'
 
-export const FormControlMUI = ({ variant, name, value, text, handleInputChange, type, adornament }) => {
+export const FormControlMUI = ({ variant, name, value, text, handleInputChange, type, adornament, fullWidth = false }) => {
 
     return (
         <div>
-            <FormControl sx={{ m: 1 }} variant={variant}>
+            <FormControl sx={{ m: 1 }} variant={variant} fullWidth={fullWidth}>
                 <InputLabel htmlFor={name}>{text}</InputLabel>
                 <FilledInput
                     id={name}
@@ -14,6 +14,7 @@ export const FormControlMUI = ({ variant, name, value, text, handleInputChange, 
                     onChange={handleInputChange}
                     type={type}
                     startAdornment={<InputAdornment position="start">{adornament}</InputAdornment>}
+                    autoComplete="off"
                 />
             </FormControl>
         </div>
