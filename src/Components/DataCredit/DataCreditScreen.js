@@ -20,18 +20,18 @@ export const DataCreditScreen = () => {
     const [amortizationData, setAmortizationData] = useState([])
     const [fixedCharges, setFixedCharges] = useState([])
 
-
-    useEffect(() => {
-        calculateAmortization()
-    }, [amountPay])
-
     const [formValues, , handleInputChange] = useForm({
         amountText: "",
         periodText: "",
-        interestText: ""
+        interestText: "",
+        capitalSubscriptionText: ""
     })
 
-    const { amountText, periodText, interestText } = formValues
+    const { amountText, periodText, interestText, capitalSubscriptionText } = formValues
+
+    useEffect(() => {
+        calculateAmortization()
+    }, [amountPay, capitalSubscriptionText])
 
     const formControlArray = [{
         variant: "filled",
@@ -59,10 +59,20 @@ export const DataCreditScreen = () => {
         handleInputChange: handleInputChange,
         type: "number",
         adornament: "%"
+    },
+    {
+        variant: "filled",
+        name: "capitalSubscriptionText",
+        value: capitalSubscriptionText,
+        text: "Abono a capital",
+        handleInputChange: handleInputChange,
+        type: "number",
+        adornament: "$"
     }]
 
     const handleCalculeteCredit = () => {
-        if (amountText !== "" && periodText !== "" && interestText !== "") {
+        if (amountText !== "" && periodText !== "" && interestText !== "" && capitalSubscriptionText !== "") {
+            console.log('pase', capitalSubscriptionText)
             const interestMonthlyTemp = (interestText / 12) / 100
             const periodMonthlyTemp = periodText * 12
             const amountCapitalPayTemp = (amountText * interestMonthlyTemp / (1 - 1 / Math.pow((1 + interestMonthlyTemp), periodMonthlyTemp))).toFixed(2)
@@ -74,12 +84,11 @@ export const DataCreditScreen = () => {
                 total += Number(fixedCharge.amount)
             ))
 
-            console.log('a1', amountPay)
             setAmountPay(Number((Number(amountCapitalPayTemp) + total).toFixed(2)))
             setInterestMonthly(interestMonthlyTemp)
             setPeriodMonthly(periodMonthlyTemp)
 
-            
+
         } else {
             Swal.fire({
                 icon: 'error',
@@ -91,37 +100,43 @@ export const DataCreditScreen = () => {
     }
 
     const calculateAmortization = () => {
-        console.log('amoritzation')
+        console.log('pase otravez', capitalSubscriptionText)
         let totalPay = 0
         const paysArray = []
         for (let i = 0; i < periodMonthly; i++) {
 
             if (paysArray.length === 0) {
                 const interestPay = (amountText * interestMonthly).toFixed(2)
+                totalPay += Number(interestPay)
                 paysArray.push({
                     noPay: i + 1,
                     capitalBalance: Number(amountText),
                     amountPay: Number(amountPay),
-                    amountCapitalPay: Number(amountCapitalPay),
+                    amountCapitalPay: (Number(amountPay) - Number(interestPay)).toFixed(2),
                     interestPay: Number(interestPay),
-                    capitalBalanceFinal: Number((Number(amountText) + Number(interestPay) - Number(amountCapitalPay)).toFixed(2))
+                    capitalSubcription: Number(capitalSubscriptionText),
+                    capitalBalanceFinal: Number((Number(amountText) + Number(interestPay) - Number(amountCapitalPay) - Number(capitalSubscriptionText)).toFixed(2))
                 })
             } else {
                 const lastPay = paysArray[paysArray.length - 1]
                 const interestPay = (lastPay.capitalBalanceFinal * interestMonthly).toFixed(2)
-                paysArray.push({
-                    noPay: i + 1,
-                    capitalBalance: lastPay.capitalBalanceFinal,
-                    amountPay: Number(amountPay),
-                    amountCapitalPay: Number(amountCapitalPay),
-                    interestPay: Number(interestPay),
-                    capitalBalanceFinal: Number((lastPay.capitalBalanceFinal + Number(interestPay) - Number(amountCapitalPay)).toFixed(2))
-                })
+                totalPay += Number(interestPay)
+                if (lastPay.capitalBalanceFinal > 0) {
+                    paysArray.push({
+                        noPay: i + 1,
+                        capitalBalance: lastPay.capitalBalanceFinal,
+                        amountPay: Number(amountPay),
+                        amountCapitalPay: (Number(amountPay) - Number(interestPay)).toFixed(2),
+                        interestPay: Number(interestPay),
+                        capitalSubcription: Number(capitalSubscriptionText),
+                        capitalBalanceFinal: Number((lastPay.capitalBalanceFinal + Number(interestPay) - Number(amountCapitalPay) - Number(capitalSubscriptionText)).toFixed(2))
+                    })
+                }
             }
         }
         setAmortizationData(paysArray)
-        setTotalPay(Number(totalPay.toFixed(2)))
-        setTotalInterest(Number((totalPay - amountText).toFixed(2)))
+        setTotalPay((Number(amountText) + totalPay).toFixed(2))
+        setTotalInterest(Number((totalPay).toFixed(2)))
 
     }
 
@@ -154,6 +169,7 @@ export const DataCreditScreen = () => {
                 totalPay={totalPay}
                 totalInterest={totalInterest}
                 fixedCharges={fixedCharges}
+                key={Date.now()}
             />
         </>
     )
